@@ -46,16 +46,40 @@ Shader "Custom/CubeShader"
                 float3 normal : NORMAL;
             };
 
+            float4x4 RotateYMatrix(float r)
+            {
+                float sina, cosa;
+                sincos(r, sina, cosa);
+                
+                float4x4 m;
+
+                m[0] = float4(cosa, 0, -sina, 0);
+                m[1] = float4(0, 1, 0, 0);
+                m[2] = float4(sina, 0, cosa, 0);
+                m[3] = float4(0, 0, 0, 1);
+
+                return m;
+            }
+
+            float4x4 PositionMatrix(float3 pos)
+            {
+                float4x4 m;
+
+                m[0] = float4(1,0,0,pos.x);
+                m[1] = float4(0,1,0,pos.y);
+                m[2] = float4(0,0,1,pos.z);
+                m[3] = float4(0,0,0,1);
+
+                return m;
+            }
             v2f vert (Input v, uint instanceID : SV_InstanceID)
             {
-                float3 data = _Positions[instanceID];
-                
-                float3 localPos = v.positionOS.xyz;
-                float3 worldPos = data.xyz + localPos;
-                
+                float4x4 tfM = mul(PositionMatrix(_Positions[instanceID]), RotateYMatrix(_Time.y));
+                float4 worldPos = mul(tfM, v.positionOS);
                 v2f o;
-                o.pos = mul(unity_MatrixVP, float4(worldPos, 1.0f));
-                o.normal = TransformObjectToWorldNormal(v.normalOS);
+                o.pos = mul(unity_MatrixVP, worldPos);
+                o.normal = mul(v.normalOS, (float3x3)Inverse(tfM));
+                
                 return o;
             }
 
