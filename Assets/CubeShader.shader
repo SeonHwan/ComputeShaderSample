@@ -33,7 +33,7 @@ Shader "Custom/CubeShader"
             #pragma vertex vert;
             #pragma fragment frag;
             
-            StructuredBuffer<float3> _Positions;
+            StructuredBuffer<float4x4> _Positions;
             
             struct Input
             {
@@ -45,41 +45,13 @@ Shader "Custom/CubeShader"
                 float4 pos : SV_POSITION;
                 float3 normal : NORMAL;
             };
-
-            float4x4 RotateYMatrix(float r)
-            {
-                float sina, cosa;
-                sincos(r, sina, cosa);
-                
-                float4x4 m;
-
-                m[0] = float4(cosa, 0, -sina, 0);
-                m[1] = float4(0, 1, 0, 0);
-                m[2] = float4(sina, 0, cosa, 0);
-                m[3] = float4(0, 0, 0, 1);
-
-                return m;
-            }
-
-            float4x4 PositionMatrix(float3 pos)
-            {
-                float4x4 m;
-
-                m[0] = float4(1,0,0,pos.x);
-                m[1] = float4(0,1,0,pos.y);
-                m[2] = float4(0,0,1,pos.z);
-                m[3] = float4(0,0,0,1);
-
-                return m;
-            }
+            
             v2f vert (Input v, uint instanceID : SV_InstanceID)
             {
-                float4x4 tfM = mul(PositionMatrix(_Positions[instanceID]), RotateYMatrix(_Time.y));
-                float4 worldPos = mul(tfM, v.positionOS);
+                float4 worldPos = mul(_Positions[instanceID], v.positionOS);
                 v2f o;
                 o.pos = mul(unity_MatrixVP, worldPos);
-                o.normal = mul(v.normalOS, (float3x3)Inverse(tfM));
-                
+                o.normal = mul(v.normalOS, (float3x3)Inverse(_Positions[instanceID]));
                 return o;
             }
 

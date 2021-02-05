@@ -436,6 +436,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 418e85c2be09ad9439f3e3448cfebeee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  computeShader: {fileID: 7200000, guid: 2bfa3d3a79244ff6802801a806f6cf08, type: 3}
   material: {fileID: 2100000, guid: b6b73f270d941834da9efac23582ea12, type: 2}
   mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   count: 200
